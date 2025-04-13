@@ -1,0 +1,37 @@
+[
+  {
+    "id": "4f04cecb-12ee-4a5d-aab7-8dffa77af653",
+    "username": "user1_updated",
+    "password": "$2b$10$YEav3FM3laKEOoqvw8WvUuY0lJKUo7DKiJ1ztJzmYlQIRb3grUjjG"
+  },
+  {
+    "id": "79aac5fc-2da9-4428-844b-b1f1236b5253",
+    "username": "user12",
+    "password": "$2b$10$Gg35yONRUHKy/r1BfDdXN.Znogk4RabZoeIk9Rf8A6VoyowtLYJvq"
+  },
+  {
+    "id": "5e6a100f-b98d-4a39-a85f-3a97923453f7",
+    "username": "Lucas",
+    "password": "$2b$10$/G.SazFU134Szjgo5zgmPud31Miqtor2IcawlgSw206SNXVu9EROu"
+  },
+  {
+    "id": "8a60d972-f463-4e67-b46a-28bf99b03aef",
+    "username": "user1",
+    "password": "$2b$10$HFFmavLDDh3qy//bDPR9WOiY.I3xkINYcjzpqQKbESOs4Rt5FwZIy"
+  },
+  {
+    "id": "74225b91-21d1-445c-820d-7881419488c5",
+    "username": "user4",
+    "password": "$2b$10$cDLjbBMDcKRcbsMD.s9WmOPkcXHpY5kTsJsI2GGhj9u6SD3kqVOoq"
+  },
+  {
+    "id": "313efb34-84a8-4521-9adb-943d40385270",
+    "username": "user5",
+    "password": "$2b$10$MOR2w02A5gg7sc1HxL.zH.uo09Pkb4LCYOekOAKW30OicSLRiGSTe"
+  },
+  {
+    "id": "ff5b2bca-3e98-4302-b41f-c75a9058748e",
+    "username": "user6",
+    "password": "$2b$10$xd7TR/CnT85666YX0o.R5.c/cWf3qL0dtVE4jmPfpNgaufJTO1IGi"
+  }
+]

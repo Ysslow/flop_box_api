@@ -1,0 +1,614 @@
+openapi: 3.0.1
+info:
+  title: FlopBox API
+  description: API REST pour la gestion centralisée des fichiers sur des serveurs
+    FTP tiers.
+  version: 1.0.0
+servers:
+  - url: https://virtserver.swaggerhub.com/LucasDeloison/FlopBox/1.0.0
+    description: SwaggerHub API Auto Mocking
+  - url: https://api.flopbox.com/v2
+    description: Serveur de production
+  - url: http://localhost:8080
+    description: Serveur de développement
+tags:
+  - name: Utilisateurs
+    description: Gestion des utilisateurs de FlopBox
+  - name: Authentification
+    description: Gestion de l'authentification des utilisateurs
+  - name: Serveurs FTP
+    description: Gestion des serveurs FTP enregistrés
+  - name: Fichiers
+    description: Gestion des fichiers sur les serveurs FTP
+paths:
+  /v2/auth:
+    post:
+      tags:
+        - Authentification
+      summary: "Authentifier un utilisateur sur FlopBox"
+      operationId: authenticateUser
+      parameters:
+        - name: flopbox_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: flopbox_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Connexion réussie, avec retour du token JWT"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+      security: []
+      x-swagger-router-controller: Authentification
+  /v2/users:
+    get:
+      tags:
+        - Utilisateurs
+      summary: Lister les utilisateurs
+      operationId: listUsers
+      responses:
+        "200":
+          description: Liste des utilisateurs
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Utilisateurs
+    post:
+      tags:
+        - Utilisateurs
+      summary: Créer un utilisateur
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "201":
+          description: Utilisateur créé
+      x-swagger-router-controller: Utilisateurs
+  /v2/users/{id}:
+    get:
+      tags:
+        - Utilisateurs
+      summary: Récupérer un utilisateur par ID
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Détails de l'utilisateur
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Utilisateurs
+    put:
+      tags:
+        - Utilisateurs
+      summary: Mettre à jour un utilisateur
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "200":
+          description: Utilisateur mis à jour
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Utilisateurs
+    delete:
+      tags:
+        - Utilisateurs
+      summary: Supprimer un utilisateur
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Utilisateur supprimé
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Utilisateurs
+  /v2/ftp-servers:
+    get:
+      tags:
+        - Serveurs FTP
+      summary: Lister les serveurs FTP
+      operationId: listFTPServers
+      responses:
+        "200":
+          description: Liste des serveurs FTP
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: ServeursFTP
+    post:
+      tags:
+        - Serveurs FTP
+      summary: Ajouter un serveur FTP
+      operationId: addFTPServer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FTPServer'
+      responses:
+        "201":
+          description: Serveur FTP ajouté
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: ServeursFTP
+  /v2/ftp-servers/search:
+    get:
+      tags:
+        - Fichiers
+      summary: Rechercher un fichier sur tous les serveurs FTP associés à un utilisateur
+      description: Permet de rechercher un fichier sur tous les serveurs FTP associés à l'utilisateur.
+      operationId: searchFile
+      parameters:
+        - name: filename
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Liste des serveurs FTP où le fichier a été trouvé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  files:
+                    type: array
+                    items:
+                      type: string
+                example:
+                  message: "Fichier 'document.txt' trouvé"
+                  files:
+                    - "ftp://ftpServer1/document.txt"
+                    - "ftp://ftpServer2/document.txt"
+        "404":
+          description: Fichier non trouvé sur aucun serveur
+        "500":
+          description: Erreur serveur interne
+      security:
+        - BearerAuth: [ ]
+      x-swagger-router-controller: Fichiers
+  /v2/ftp-servers/{alias}:
+    get:
+      tags:
+        - Serveurs FTP
+      summary: Récupérer un serveur FTP par alias
+      operationId: getFTPServer
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Informations du serveur FTP
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: ServeursFTP
+    put:
+      tags:
+        - Serveurs FTP
+      summary: Mettre à jour un serveur FTP
+      operationId: updateFTPServer
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FTPServer'
+      responses:
+        "200":
+          description: Serveur FTP mis à jour
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: ServeursFTP
+    delete:
+      tags:
+        - Serveurs FTP
+      summary: Supprimer un serveur FTP
+      operationId: deleteFTPServer
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Serveur supprimé
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: ServeursFTP
+  /v2/ftp-servers/{alias}/files:
+    get:
+      tags:
+        - Fichiers
+      summary: Lister les fichiers d’un serveur FTP
+      operationId: listFTPFiles
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: ftp_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Liste des fichiers
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Fichiers
+  /v2/ftp-servers/{alias}/files/{filename}:
+    get:
+      tags:
+        - Fichiers
+      summary: Download un fichier depuis un serveur FTP
+      operationId: downloadFile
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: filename
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: ftp_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Fichier téléchargé
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Fichiers
+    post:
+      tags:
+        - Fichiers
+      summary: Upload un fichier vers un serveur FTP
+      operationId: uploadFile
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: filename
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: ftp_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: filepath
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+            description: "Le chemin du fichier sur le serveur ou localement"
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        "201":
+          description: Fichier téléversé
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Fichiers
+    delete:
+      tags:
+        - Fichiers
+      summary: Supprimer un fichier d’un serveur FTP
+      operationId: deleteFile
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: filename
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: ftp_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Fichier supprimé
+      security:
+        - BearerAuth: []
+      x-swagger-router-controller: Fichiers
+  /v2/ftp-servers/{alias}/files/{filename}/create:
+    post:
+      tags:
+        - Fichiers
+      summary: "Créer un fichier vide sur un serveur FTP"
+      description: "Permet de créer un fichier vide sur un serveur FTP spécifié sans avoir besoin d'un fichier local. Le fichier sera créé à l'emplacement spécifié sur le serveur FTP."
+      operationId: createFile
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: filename
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: ftp_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: "Fichier créé avec succès sur le serveur FTP."
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fichier créé avec succès sur le serveur FTP."
+        "400":
+          description: "Requête malformée ou paramètres manquants."
+        "401":
+          description: "Non autorisé, jeton d'authentification invalide."
+        "404":
+          description: "Serveur FTP non trouvé ou fichier existant."
+        "500":
+          description: "Erreur interne du serveur."
+      security:
+        - BearerAuth: [ ]
+      x-swagger-router-controller: Fichiers
+  /v2/ftp-servers/{alias}/files/{filename}/rename:
+    patch:
+      tags:
+        - Fichiers
+      summary: Renommer un fichier sur un serveur FTP
+      description: "Permet de renommer un fichier sur un serveur FTP spécifié."
+      operationId: renameFile
+      parameters:
+        - name: alias
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: filename
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+        - name: new_filename
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_username
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+        - name: ftp_password
+          in: query
+          required: true
+          style: form
+          explode: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Fichier renommé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Fichier renommé avec succès."
+        "400":
+          description: "Requête malformée ou paramètres manquants."
+        "401":
+          description: "Non autorisé, jeton d'authentification invalide."
+        "404":
+          description: "Serveur FTP ou fichier non trouvé."
+        "500":
+          description: "Erreur interne du serveur."
+      security:
+        - BearerAuth: [ ]
+      x-swagger-router-controller: Fichiers
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    FTPServer:
+      type: object
+      properties:
+        alias:
+          type: string
+        hostname:
+          type: string
+        port:
+          type: integer
+        username:
+          type: string
+        password:
+          type: string
+    inline_response_200:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

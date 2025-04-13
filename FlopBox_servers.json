@@ -1,0 +1,20 @@
+[
+  {
+    "alias": "nouveauServeur",
+    "host": "ftp.serveurmisajour.com",
+    "port": 23,
+    "owner_id": "user12"
+  },
+  {
+    "alias": "serv1",
+    "host": "127.0.0.1",
+    "port": 2121,
+    "owner_id": "Lucas"
+  },
+  {
+    "alias": "serv2",
+    "host": "localhost",
+    "port": 2122,
+    "owner_id": "Lucas"
+  }
+]
